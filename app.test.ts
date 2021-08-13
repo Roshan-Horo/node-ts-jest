@@ -1,10 +1,27 @@
-import app from './app'
+import myApp from './app'
 import request from 'supertest'
+import { jest } from '@jest/globals'
+
+const createUser = jest.fn()
+const getUser = jest.fn()
+
+const app = myApp({
+    createUser,
+    getUser
+})
 
 describe("POST /users", () => {
 
     describe("given a username and password", () => {
+
       // shoult save the username and password in the database
+      test("should save the username and password to the database", async () => {
+          const response = await request(app).post('/users').send({
+              username: "username",
+              password: "pass123"
+          })
+          expect(createUser.mock.calls.length).toBe(1)
+      })
       // should respond with a 200 status code
       test("should respond with a 200 status code", async () => {
           const response = await request(app).post("/user").send({
@@ -42,9 +59,7 @@ describe("POST /users", () => {
             ]
             for(const body of bodyData){
 
-                const res = await request(app).post("/user").send({
-                    username: "username"
-                })
+                const res = await request(app).post("/user").send(body)
                 expect(res.statusCode).toBe(400)
             }
        
